@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PetCare Connect — Área do Tutor</title>
+<link rel="icon" type="image/png" href="logo-petcare.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --teal:#0d9488;--teal-dark:#0c6e6e;--teal-mid:#14b8a6;--teal-light:#e0f7f5;
+  --navy:#1a2e44;--cream:#f0fafa;--warm-white:#f8fffe;
+  --text:#1a2e44;--text-muted:#4a7a78;--text-light:#7aadaa;
+  --border:#b2dfdb;--card-bg:#fff;
+  --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+  --shadow:0 4px 24px rgba(13,148,136,.10);--shadow-lg:0 16px 48px rgba(13,148,136,.16);
+  --sidebar-w:240px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden}
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200}
+.sb-brand{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.sb-brand img{width:34px;height:34px;object-fit:contain;border-radius:8px}
+.sb-brand-text span{font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;color:#fff;display:block}
+.sb-brand-text small{font-size:.68rem;color:rgba(255,255,255,.38);display:block;margin-top:1px}
+.sb-user{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:34px;height:34px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),var(--teal-mid));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;color:#fff}
+.sb-user-name{font-size:.85rem;font-weight:600;color:#fff;display:block}
+.sb-user-role{font-size:.68rem;color:rgba(255,255,255,.38);display:block;margin-top:1px}
+.sb-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.25);padding:10px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:.15s;text-decoration:none;font-size:.87rem;font-weight:500;color:rgba(255,255,255,.5);border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(13,148,136,.28);color:#fff;font-weight:600}
+.nav-item .ni{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-item .badge{margin-left:auto;min-width:18px;height:18px;padding:0 5px;background:#ef4444;color:#fff;border-radius:100px;font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sb-footer{padding:14px 10px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-logout{width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:12px;color:rgba(255,255,255,.45);font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif}
+.sb-logout:hover{background:rgba(220,38,38,.18);border-color:rgba(220,38,38,.3);color:#fca5a5}
+.main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px}
+.topbar-left h2{font-family:'Sora',sans-serif;font-weight:700;font-size:1.45rem;color:var(--text)}
+.topbar-left p{font-size:.88rem;color:var(--text-muted);margin-top:3px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.tb-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text-muted);font-size:.84rem;font-weight:600;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif}
+.tb-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-light)}
+.tb-btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tb-btn.primary:hover{background:var(--teal-dark)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:20px 18px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal);border-radius:18px 18px 0 0}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(13,148,136,.3)}
+.stat-card .sc-label{font-size:.8rem;color:var(--text-muted);font-weight:500;margin-bottom:10px;display:block}
+.stat-card .sc-num{font-family:'Sora',sans-serif;font-weight:700;font-size:2rem;color:var(--teal);display:block}
+.stat-card .sc-icon{position:absolute;right:16px;top:16px;font-size:1.4rem;opacity:.25}
+.section{display:none}.section.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.page-header-left h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1.15rem;color:var(--text)}
+.page-header-left p{font-size:.88rem;color:var(--text-muted);margin-top:4px;max-width:520px;line-height:1.5}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);color:var(--teal-dark);border:1px solid rgba(13,148,136,.2);border-radius:100px;padding:6px 14px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.cards-grid{display:grid;gap:14px}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:20px;transition:.2s}
+.card:hover{box-shadow:var(--shadow);border-color:rgba(13,148,136,.2)}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.card-title{font-family:'Sora',sans-serif;font-weight:600;font-size:.98rem;color:var(--text)}
+.card-sub{font-size:.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:12px}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{display:inline-block;padding:4px 10px;border-radius:100px;font-size:.75rem;font-weight:700}
+.tag-green{background:var(--teal-light);color:var(--teal-dark)}.tag-yellow{background:#fef9ec;color:#92400e}.tag-red{background:#fef2f2;color:#dc2626}.tag-navy{background:#e8edf5;color:var(--navy)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.83rem;font-weight:700;color:var(--text)}
+.form-group input,.form-group select{height:46px;border:1.5px solid var(--border);border-radius:12px;padding:0 14px;background:var(--warm-white);font-size:.92rem;color:var(--text);outline:none;transition:.2s;font-family:'DM Sans',sans-serif}
+.form-group input:focus,.form-group select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.1);background:#fff}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:12px;padding:10px 18px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--card-bg);color:var(--text-muted);border:1.5px solid var(--border)}.btn-secondary:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-light)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1.5px solid var(--danger-border)}.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:7px 13px;font-size:.8rem;border-radius:9px}
+.empty{text-align:center;padding:48px 24px;background:var(--card-bg);border:1.5px dashed var(--border);border-radius:18px;color:var(--text-muted)}
+.empty .empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.5}.empty p{font-size:.9rem;line-height:1.6}
+.drawer-overlay{position:fixed;inset:0;background:rgba(26,46,68,.2);display:none;z-index:300}.drawer-overlay.active{display:block}
+.drawer{position:fixed;top:0;right:-420px;width:380px;height:100vh;z-index:400;background:var(--card-bg);border-left:1px solid var(--border);transition:right .25s ease;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(13,148,136,.1)}
+.drawer.active{right:0}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--border)}
+.drawer-head h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--text)}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column;gap:10px}
+.aviso-card{background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:14px}
+.aviso-card strong{display:block;font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.aviso-card span{font-size:.82rem;color:var(--text-muted);line-height:1.5}
+.aviso-card.unread{border-color:rgba(13,148,136,.3);background:var(--teal-light)}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,46,68,.25);display:none;align-items:center;justify-content:center;z-index:500;padding:20px}
+.modal-overlay.active{display:flex}
+.modal{width:100%;max-width:440px;background:var(--card-bg);border:1px solid var(--border);border-radius:24px;padding:28px;box-shadow:0 32px 64px rgba(13,148,136,.18)}
+.modal h3{font-family:'Sora',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:6px;color:var(--text)}
+.modal p{font-size:.88rem;color:var(--text-muted);margin-bottom:20px;line-height:1.5}
+.modal-form{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;font-size:.88rem;font-weight:600;box-shadow:0 14px 30px rgba(26,46,68,.2);opacity:0;pointer-events:none;transition:.25s;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:860px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:20px 18px}.form-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-brand">
+    <img src="logo-petcare.png" alt="PetCare Connect"/>
+    <div class="sb-brand-text"><span>PetCare Connect</span><small>Sistema veterinário</small></div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-avatar" id="sbAvatar">T</div>
+    <div><span class="sb-user-name" id="sbUserName">Tutor(a)</span><span class="sb-user-role">Área do Tutor</span></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Menu</div>
+    <button class="nav-item active" data-sec="inicio"    onclick="openSection('inicio')">   <span class="ni">🏠</span> Início</button>
+    <button class="nav-item"        data-sec="cadastro"  onclick="openSection('cadastro')"> <span class="ni">➕</span> Cadastrar pet</button>
+    <button class="nav-item"        data-sec="gerenciar" onclick="openSection('gerenciar')"><span class="ni">✏️</span> Gerenciar pets</button>
+    <button class="nav-item"        data-sec="consulta"  onclick="openSection('consulta')"> <span class="ni">📅</span> Consultas</button>
+    <button class="nav-item"        data-sec="vacinas"   onclick="openSection('vacinas')">  <span class="ni">💉</span> Vacinas</button>
+    <button class="nav-item"        data-sec="historico" onclick="openSection('historico')"><span class="ni">📋</span> Histórico</button>
+    <button class="nav-item"        data-sec="relatorios" onclick="openSection('relatorios')"><span class="ni">📄</span> Relatórios</button>
+    <div class="sb-label" style="margin-top:8px">Sistema</div>
+    <button class="nav-item" onclick="toggleAvisos(true)">
+      <span class="ni">🔔</span> Avisos
+      <span class="badge" id="navBadge" style="display:none">0</span>
+    </button>
+  </nav>
+  <div class="sb-footer"><button class="sb-logout" onclick="logout()">↩ Sair do sistema</button></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2 id="welcomeTitle">Bem-vindo(a) 👋</h2>
+      <p id="welcomeSub">Acompanhe seus pets e gerencie as informações principais.</p>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="toggleAvisos(true)">🔔 Avisos <span id="topBadge" style="display:none;background:#ef4444;color:#fff;border-radius:100px;padding:1px 7px;font-size:.72rem;margin-left:2px">0</span></button>
+      <button class="tb-btn primary" onclick="openSection('cadastro')">➕ Novo pet</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" onclick="openSection('gerenciar')"><span class="sc-icon">🐾</span><span class="sc-label">Pets cadastrados</span><span class="sc-num" id="totalPets">—</span></div>
+    <div class="stat-card" onclick="openSection('consulta')"> <span class="sc-icon">📅</span><span class="sc-label">Consultas agendadas</span><span class="sc-num" id="totalConsultas">—</span></div>
+    <div class="stat-card" onclick="openSection('vacinas')">  <span class="sc-icon">💉</span><span class="sc-label">Vacinas registradas</span><span class="sc-num" id="totalVacinas">—</span></div>
+    <div class="stat-card" onclick="openSection('relatorios')"><span class="sc-icon">📄</span><span class="sc-label">Relatórios disponíveis</span><span class="sc-num" id="totalRelatorios">—</span></div>
+  </div>
+
+  <!-- INÍCIO -->
+  <section id="inicio" class="section active">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Painel inicial do tutor</h3><p>Visão geral dos seus pets, consultas e vacinas.</p></div>
+      <span class="chip">Visão geral</span>
+    </div>
+    <div class="cards-grid" id="listaInicio"></div>
+  </section>
+
+  <!-- CADASTRO -->
+  <section id="cadastro" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Cadastrar novo pet</h3><p>Registre um novo pet com as informações básicas.</p></div>
+      <span class="chip">Cadastro rápido</span>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-group"><label>Nome do pet</label><input id="petNome" placeholder="Ex.: Luna"/></div>
+        <div class="form-group"><label>Tipo do animal</label>
+          <select id="petTipo"><option value="">Selecione</option><option>Cachorro</option><option>Gato</option><option>Pássaro</option><option>Coelho</option><option>Hamster</option><option>Outro</option></select>
+        </div>
+        <div class="form-group"><label>Idade (anos)</label><input id="petIdade" type="text" inputmode="numeric" placeholder="Ex.: 4"/></div>
+        <div class="form-group"><label>Peso (kg)</label><input id="petPeso" type="text" inputmode="decimal" placeholder="Ex.: 12.4"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="btnCadastrarPet" onclick="addPet()">✓ Cadastrar pet</button>
+        <button class="btn btn-secondary" onclick="clearPetForm()">Limpar campos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GERENCIAR -->
+  <section id="gerenciar" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Gerenciar pets</h3><p>Visualize e atualize os dados dos seus pets cadastrados.</p></div>
+      <span class="chip">Gerenciamento</span>
+    </div>
+    <div class="cards-grid" id="listaGerenciar"></div>
+  </section>
+
+  <!-- CONSULTAS -->
+  <section id="consulta" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Agendar consulta</h3><p>Selecione o pet, o veterinário, a data e o horário.</p></div>
+      <span class="chip">Agenda</span>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="form-grid">
+        <div class="form-group"><label>Pet</label><select id="consultaPet"></select></div>
+        <div class="form-group"><label>Veterinário(a)</label><select id="consultaVet"></select></div>
+        <div class="form-group"><label>Data</label><input id="consultaData" type="date"/></div>
+        <div class="form-group"><label>Horário</label><select id="consultaHora"></select></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="btnAgendar" onclick="addConsulta()">✓ Confirmar agendamento</button>
+      </div>
+    </div>
+    <div class="page-header" style="padding-top:0;margin-top:0">
+      <div class="page-header-left"><h3>Consultas agendadas</h3></div>
+    </div>
+    <div class="cards-grid" id="listaConsultas"></div>
+  </section>
+
+  <!-- VACINAS -->
+  <section id="vacinas" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Carteira de vacinação</h3><p>Acompanhe as vacinas aplicadas por pet.</p></div>
+      <span class="chip">Saúde preventiva</span>
+    </div>
+    <div class="cards-grid" id="listaVacinas"></div>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section id="historico" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Histórico clínico</h3><p>Linha do tempo com eventos de cada pet.</p></div>
+      <span class="chip">Histórico</span>
+    </div>
+    <div class="cards-grid" id="listaHistorico"></div>
+  </section>
+
+  <!-- RELATÓRIOS -->
+  <section id="relatorios" class="section">
+    <div class="page-header">
+      <div class="page-header-left"><h3>Relatórios</h3><p>Relatórios clínicos dos seus pets.</p></div>
+      <span class="chip">Documentos</span>
+    </div>
+    <div class="cards-grid" id="listaRelatorios"></div>
+  </section>
+</main>
+
+<!-- Drawer Avisos -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleAvisos(false)"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>🔔 Avisos recentes</h3>
+    <button class="btn btn-secondary btn-sm" onclick="toggleAvisos(false)">✕ Fechar</button>
+  </div>
+  <div class="drawer-body" id="listaAvisos"></div>
+</div>
+
+<!-- Modal Editar Pet -->
+<div class="modal-overlay" id="modalEdit">
+  <div class="modal">
+    <h3>✏️ Atualizar dados do pet</h3>
+    <p>Edite as informações de idade e peso do pet selecionado.</p>
+    <div class="modal-form">
+      <div class="form-group"><label>Pet</label><input id="modalPetNome" readonly/></div>
+      <div class="form-group"><label>Nova idade (anos)</label><input id="modalPetIdade" type="text" inputmode="numeric" placeholder="Ex.: 5"/></div>
+      <div class="form-group"><label>Novo peso (kg)</label><input id="modalPetPeso" type="text" inputmode="decimal" placeholder="Ex.: 13.0"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalEdit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePetEdit()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirmação</h3>
+    <p id="confirmText">Deseja continuar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancelar</button>
+      <button class="btn btn-danger" onclick="closeConfirm(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/petcare-api.js"></script>
+<script>
+// ── Auth guard ────────────────────────────────────────────
+if (!petcareRequireAuth('Tutor')) { /* redirected */ }
+
+const sess = petcareGetSession();
+let editPetId = null;
+let confirmCb = null;
+let petsCache = [];
+let consultasCache = [];
+let vacinasCache = [];
+let relatoriosCache = [];
+
+// ── Init ──────────────────────────────────────────────────
+(async function init() {
+  document.getElementById('sbUserName').textContent = sess.nome || 'Tutor(a)';
+  document.getElementById('sbAvatar').textContent   = (sess.nome || 'T')[0].toUpperCase();
+  document.getElementById('welcomeTitle').textContent = `Bem-vindo(a), ${sess.nome?.split(' ')[0]} 👋`;
+
+  setMinDate();
+
+document.getElementById('consultaVet')
+.addEventListener('change',preencherHorarios);
+
+document.getElementById('consultaData')
+.addEventListener('change',preencherHorarios);
+  await fillVeterinarios();
+  await render();
+
+  const sec = sessionStorage.getItem('petcare_tutor_sec');
+  if (sec) openSection(sec);
+})();
+
+// ── Render geral ──────────────────────────────────────────
+async function render() {
+  await Promise.all([
+    renderPets(),
+    renderConsultas(),
+    renderVacinas(),
+    renderRelatorios(),
+    renderAvisos(),
+    renderHistorico()
+  ]);
+  fillPetSelect();
+  renderInicio();
+}
+
+// ── PETS ──────────────────────────────────────────────────
+async function renderPets() {
+  const r = await petcareListarPets();
+  petsCache = r?.dados || [];
+  document.getElementById('totalPets').textContent = petsCache.length;
+
+  const el = document.getElementById('listaGerenciar');
+  if (!petsCache.length) {
+    el.innerHTML = emptyState('🐾', 'Nenhum pet cadastrado ainda.<br/>Clique em <strong>Cadastrar pet</strong> para começar.');
+    return;
+  }
+  el.innerHTML = petsCache.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">${emojiTipo(p.tipo)} ${p.nome}</span>
+        <span class="tag tag-green">${p.tipo}</span>
+      </div>
+      <p class="card-sub">Idade: ${p.idade} ano(s) &nbsp;|&nbsp; Peso: ${p.peso} kg</p>
+      <div class="card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openEditPet(${p.id},'${esc(p.nome)}',${p.idade},'${p.peso}')">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm"    onclick="removePet(${p.id},'${esc(p.nome)}')">🗑️ Remover</button>
+      </div>
+    </div>`).join('');
+}
+
+function fillPetSelect() {
+  const sel = document.getElementById('consultaPet');
+  sel.innerHTML = `<option value="">Selecione o pet</option>` +
+    petsCache.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+}
+
+async function addPet() {
+  const nome  = document.getElementById('petNome').value.trim();
+  const tipo  = document.getElementById('petTipo').value;
+  const idade = parseInt(document.getElementById('petIdade').value);
+  const peso  = parseFloat(document.getElementById('petPeso').value.replace(',','.'));
+
+  if (!nome || !tipo || isNaN(idade) || isNaN(peso)) return toast('⚠️ Preencha todos os campos.');
+  if (idade < 0) return toast('⚠️ Idade não pode ser negativa.');
+  if (peso <= 0) return toast('⚠️ Peso deve ser maior que zero.');
+
+  setLoading('btnCadastrarPet', true);
+  const r = await petcareCriarPet(nome, tipo, idade, peso);
+  setLoading('btnCadastrarPet', false);
+
+  if (!r?.sucesso) return toast('❌ ' + (r?.mensagem || 'Erro ao cadastrar pet.'));
+  clearPetForm();
+  toast(`✅ Pet "${nome}" cadastrado com sucesso!`);
+  await render();
+  openSection('gerenciar');
+}
+
+function clearPetForm() {
+  ['petNome','petTipo','petIdade','petPeso'].forEach(id => document.getElementById(id).value = '');
+}
+
+function openEditPet(id, nome, idade, peso) {
+  editPetId = id;
+  document.getElementById('modalPetNome').value  = nome;
+  document.getElementById('modalPetIdade').value = idade;
+  document.getElementById('modalPetPeso').value  = peso;
+  openModal('modalEdit');
+}
+
+async function savePetEdit() {
+  const idade = parseInt(document.getElementById('modalPetIdade').value);
+  const peso  = parseFloat(document.getElementById('modalPetPeso').value.replace(',','.'));
+  if (isNaN(idade) || isNaN(peso)) return toast('⚠️ Preencha a nova idade e o novo peso.');
+  if (idade < 0) return toast('⚠️ Idade não pode ser negativa.');
+  if (peso <= 0) return toast('⚠️ Peso deve ser maior que zero.');
+
+  const r = await petcareAtualizarPet(editPetId, idade, peso);
+  if (!r?.sucesso) return toast('❌ ' + (r?.mensagem || 'Erro ao atualizar.'));
+  closeModal('modalEdit');
+  toast('✅ Pet atualizado.');
+  await render();
+}
+
+async function removePet(id, nome) {
+  openConfirm(`Remover "${nome}" permanentemente?`, async ok => {
+    if (!ok) return;
+    const r = await petcareRemoverPet(id);
+    if (!r?.sucesso) return toast('❌ ' + (r?.mensagem || 'Erro ao remover.'));
+    toast(`✅ "${nome}" removido.`);
+    await render();
+  }, 'Remover pet');
+}
+
+// ── CONSULTAS ─────────────────────────────────────────────
+async function fillVeterinarios() {
+  const r = await petcareListarVeterinarios();
+  const vets = r?.dados || [];
+  document.getElementById('consultaVet').innerHTML =
+    `<option value="">Selecione o veterinário</option>` +
+    vets.map(v => `<option value="${v.id}">${v.nome}</option>`).join('');
+}
+
+function setMinDate() {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  document.getElementById('consultaData').min = d.toISOString().split('T')[0];
+}
+
+async function preencherHorarios() {
+
+  const vetId = document.getElementById('consultaVet').value;
+  const dataInput = document.getElementById('consultaData').value;
+  const select = document.getElementById('consultaHora');
+
+  if (!vetId || !dataInput) {
+    select.innerHTML = '<option value="">Selecione veterinário e data</option>';
+    return;
+  }
+
+  const data = petcareBrDate(dataInput);
+
+  const r = await petcareListarConsultas();
+  consultasCache = (r?.dados || []).filter(c => c.status !== 'Cancelada');
+
+  const usados = consultasCache
+    .filter(c =>
+      String(c.veterinarioId || c.vetId) === String(vetId) &&
+      c.data === data &&
+      c.status !== 'Cancelada'
+    )
+    .map(c => c.hora);
+
+  const livres = petcareHorariosDisponiveis()
+    .filter(h => !usados.includes(h));
+
+  select.innerHTML = livres.length
+    ? livres.map(h => `<option value="${h}">${h}</option>`).join('')
+    : '<option value="">Sem horários disponíveis</option>';
+}
+
+document.addEventListener('DOMContentLoaded', preencherHorarios);
+
+async function renderConsultas() {
+  const r = await petcareListarConsultas();
+  consultasCache = (r?.dados || []).filter(c => c.status !== 'Cancelada');
+  document.getElementById('totalConsultas').textContent = consultasCache.length;
+
+  const el = document.getElementById('listaConsultas');
+  if (!consultasCache.length) {
+    el.innerHTML = emptyState('📅', 'Nenhuma consulta agendada.');
+    return;
+  }
+  el.innerHTML = consultasCache.map(c => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📅 ${c.petNome} — ${c.data} às ${c.hora}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="tag ${statusTag(c.status)}">${c.status}</span>
+          ${c.status === 'Marcada' ? `<button class="btn btn-danger btn-sm" onclick="cancelarConsulta(${c.id})">Cancelar</button>` : ''}
+        </div>
+      </div>
+      <p class="card-sub">Veterinário(a): ${c.vetNome}</p>
+    </div>`).join('');
+}
+
+async function addConsulta() {
+  const petId = parseInt(document.getElementById('consultaPet').value);
+  const vetId = parseInt(document.getElementById('consultaVet').value);
+  const data  = document.getElementById('consultaData').value;   // yyyy-MM-dd
+  const hora  = document.getElementById('consultaHora').value;
+
+  if (!petId || !vetId || !data || !hora) return toast('⚠️ Preencha todos os campos para agendar.');
+
+  const dataBr = petcareBrDate(data);
+  setLoading('btnAgendar', true);
+  const r = await petcareAgendarConsulta(petId, vetId, dataBr, hora);
+  setLoading('btnAgendar', false);
+
+  if (!r?.sucesso)
+    return toast('❌ ' + (r?.mensagem || 'Erro ao agendar.'));
+
+    toast('✅ Consulta agendada com sucesso!');
+
+  const lista = await petcareListarConsultas();
+  consultasCache = lista?.dados || [];
+
+  await renderConsultas();
+  await preencherHorarios();
+
+  document.getElementById('consultaHora').selectedIndex = 0;
+// Atualiza o cache de consultas
+consultasCache = (await petcareListarConsultas())?.dados || [];
+}
+
+
+async function cancelarConsulta(id) {
+
+  openConfirm(
+    'Deseja cancelar esta consulta?',
+    async ok => {
+
+      if (!ok) return;
+
+      const r =
+        await petcareAtualizarStatusConsulta(
+          id,
+          'Cancelada'
+        );
+
+      if (!r?.sucesso) {
+        toast('❌ Erro ao cancelar consulta.');
+        return;
+      }
+
+      toast('✅ Consulta cancelada.');
+
+      await renderConsultas();
+      await preencherHorarios();
+    },
+    'Cancelar consulta'
+  );
+}
+
+// ── VACINAS ───────────────────────────────────────────────
+async function renderVacinas() {
+  if (!petsCache.length) { document.getElementById('totalVacinas').textContent = 0; return; }
+
+  const all = await Promise.all(petsCache.map(p => petcareListarVacinas(p.id)));
+  vacinasCache = all.flatMap((r, i) =>
+    (r?.dados || []).map(v => ({ ...v, petNome: petsCache[i].nome })));
+
+  document.getElementById('totalVacinas').textContent = vacinasCache.length;
+
+  const el = document.getElementById('listaVacinas');
+  if (!vacinasCache.length) { el.innerHTML = emptyState('💉', 'Nenhuma vacina registrada.'); return; }
+
+  el.innerHTML = petsCache.map(p => {
+    const vacs = vacinasCache.filter(v => v.petId === p.id);
+    if (!vacs.length) return '';
+    return `<div class="card">
+      <div class="card-header"><span class="card-title">${emojiTipo(p.tipo)} ${p.nome}</span></div>
+      ${vacs.map(v => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:.88rem">${v.nome}${v.observacao ? ` — <em>${v.observacao}</em>` : ''}</span>
+          <span class="tag ${v.aplicada ? 'tag-green' : 'tag-yellow'}">${v.aplicada ? '✓ Aplicada' : 'Pendente'}</span>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ── HISTÓRICO ─────────────────────────────────────────────
+async function renderHistorico() {
+  if (!petsCache.length) { document.getElementById('listaHistorico').innerHTML = emptyState('📋','Nenhum histórico.'); return; }
+
+  const el = document.getElementById('listaHistorico');
+  el.innerHTML = '';
+
+  for (const p of petsCache) {
+    const r = await petcareListarHistorico(p.id);
+    const hist = r?.dados || [];
+    if (!hist.length) continue;
+    el.innerHTML += `<div class="card">
+      <div class="card-header"><span class="card-title">${emojiTipo(p.tipo)} ${p.nome}</span></div>
+      ${hist.map(h => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:.75rem;color:var(--text-light);font-weight:600">${formatDate(h.dataEvento)}</span>
+          <p style="font-size:.87rem;color:var(--text-muted);margin-top:2px">${h.descricao}</p>
+        </div>`).join('')}
+    </div>`;
+  }
+  if (!el.innerHTML) el.innerHTML = emptyState('📋','Nenhum histórico registrado.');
+}
+
+// ── RELATÓRIOS ────────────────────────────────────────────
+async function renderRelatorios() {
+  const r = await petcareListarRelatorios();
+  relatoriosCache = r?.dados || [];
+  document.getElementById('totalRelatorios').textContent = relatoriosCache.length;
+
+  const el = document.getElementById('listaRelatorios');
+  if (!relatoriosCache.length) { el.innerHTML = emptyState('📄','Nenhum relatório disponível.'); return; }
+
+  el.innerHTML = relatoriosCache.map(rel => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📄 Relatório — ${rel.petNome}</span>
+        <span class="tag tag-navy">Atualizado: ${formatDate(rel.atualizacao)}</span>
+      </div>
+      <p class="card-sub">${rel.texto.substring(0, 200)}${rel.texto.length > 200 ? '…' : ''}</p>
+      <div class="card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="imprimirRelatorio('${esc(rel.petNome)}','${esc(rel.texto)}')">🖨️ Imprimir</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── AVISOS ────────────────────────────────────────────────
+async function renderAvisos() {
+  const r = await petcareListarAvisos();
+  const avisos = r?.dados || [];
+  const naoLidos = avisos.filter(a => !a.lido).length;
+
+  ['navBadge','topBadge'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = naoLidos;
+    el.style.display = naoLidos > 0 ? 'flex' : 'none';
+  });
+
+  document.getElementById('listaAvisos').innerHTML = avisos.length
+    ? avisos.map(a => `
+        <div class="aviso-card ${a.lido ? '' : 'unread'}" onclick="marcarLido(${a.id}, this)">
+          <strong>${a.titulo}</strong>
+          <span>${a.texto}</span>
+          <span style="font-size:.72rem;color:var(--text-light);display:block;margin-top:6px">${formatDate(a.criadoEm)}</span>
+        </div>`).join('')
+    : '<p style="text-align:center;color:var(--text-muted);font-size:.88rem">Sem avisos.</p>';
+}
+
+async function marcarLido(id, el) {
+  await petcareMarcarAvisoLido(id);
+  el.classList.remove('unread');
+  await renderAvisos();
+}
+
+// ── INÍCIO (painel) ───────────────────────────────────────
+function renderInicio() {
+  const el = document.getElementById('listaInicio');
+  if (!petsCache.length) { el.innerHTML = emptyState('🐾', 'Nenhum pet cadastrado ainda.'); return; }
+  el.innerHTML = petsCache.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">${emojiTipo(p.tipo)} ${p.nome}</span>
+        <span class="tag tag-green">${p.tipo}</span>
+      </div>
+      <p class="card-sub">Idade: ${p.idade} ano(s) &nbsp;|&nbsp; Peso: ${p.peso} kg</p>
+    </div>`).join('');
+}
+
+// ── Navegação ─────────────────────────────────────────────
+function openSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item[data-sec]').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById(id);
+  if (sec) sec.classList.add('active');
+  const btn = document.querySelector(`.nav-item[data-sec="${id}"]`);
+  if (btn) btn.classList.add('active');
+  sessionStorage.setItem('petcare_tutor_sec', id);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Renderiza seções com fetch lazy
+  if (id === 'historico') renderHistorico();
+}
+
+function toggleAvisos(open) {
+  document.getElementById('drawer').classList.toggle('active', open);
+  document.getElementById('drawerOverlay').classList.toggle('active', open);
+}
+
+function logout() {
+
+    openConfirm(
+        'Deseja realmente sair do sistema?',
+        function(ok) {
+
+            if (!ok) return;
+
+            localStorage.removeItem('petcare_token');
+            localStorage.removeItem('petcare_login');
+            localStorage.removeItem('petcare_nome');
+            localStorage.removeItem('petcare_perfil');
+            localStorage.removeItem('petcare_usuarioId');
+
+            window.location.href = '/index.html';
+        },
+        'Sair do sistema'
+    );
+}
+
+// ── Modais ────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openConfirm(msg, cb, title = 'Confirmação') {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent  = msg;
+  confirmCb = cb;
+  openModal('modalConfirm');
+}
+function closeConfirm(ok) { closeModal('modalConfirm'); if (confirmCb) confirmCb(ok); confirmCb = null; }
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg, dur = 2600) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Impressão simples ─────────────────────────────────────
+function imprimirRelatorio(petNome, texto) {
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Relatório ${petNome}</title>
+    <style>body{font-family:Arial,sans-serif;padding:40px;color:#1a2e44}
+    h1{color:#0d9488}p{line-height:1.7;margin-top:16px}</style></head>
+    <body><h1>Relatório Clínico — ${petNome}</h1><p>${texto.replace(/\n/g,'<br/>')}</p>
+    <script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function emptyState(icon, msg) {
+  return `<div class="empty"><div class="empty-icon">${icon}</div><p>${msg}</p></div>`;
+}
+function emojiTipo(t) {
+  const m = { cachorro:'🐶', gato:'🐱', pássaro:'🦜', coelho:'🐰', hamster:'🐹' };
+  return m[t?.toLowerCase()] || '🐾';
+}
+function statusTag(s) {
+  return s === 'Realizada' ? 'tag-green' : s === 'Cancelada' ? 'tag-red' : 'tag-navy';
+}
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return isNaN(dt) ? d : dt.toLocaleDateString('pt-BR');
+}
+function esc(s) { return String(s).replace(/'/g,"\\'"); }
+function setLoading(btnId, on) {
+  const b = document.getElementById(btnId);
+  if (!b) return;
+  if (!b.dataset.original) b.dataset.original = b.innerHTML;
+  b.disabled = on;
+  b.innerHTML = on ? '<span class="spinner"></span>Aguarde...' : b.dataset.original;
+}
+
+preencherHorarios();
+
+</script>
+</body>
+</html>
+
+<script>
+document.addEventListener('input', function(e){
+  const t = e.target;
+  const nome = (t.name || '').toLowerCase();
+  const id = (t.id || '').toLowerCase();
+
+  if(nome.includes('idade') || id.includes('idade') ||
+     nome.includes('peso')  || id.includes('peso')){
+      t.value = t.value.replace(/\D/g,'');
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  const t = e.target;
+  const nome = (t.name || '').toLowerCase();
+  const id = (t.id || '').toLowerCase();
+
+  if(nome.includes('idade') || id.includes('idade') ||
+     nome.includes('peso')  || id.includes('peso')){
+
+      if(['-','+','e','E',',','.'].includes(e.key)){
+          e.preventDefault();
+      }
+  }
+});
+</script>

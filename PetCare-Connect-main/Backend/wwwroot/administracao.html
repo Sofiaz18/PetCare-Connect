@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetCare Connect - Administração</title>
+  <link rel="icon" type="image/png" href="logo-petcare.png">
+  <script src="js/petcare-api.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --teal:#0d9488;--teal-dark:#0c6e6e;--teal-mid:#14b8a6;--teal-light:#e0f7f5;
+      --navy:#1a2e44;--cream:#f0fafa;--warm-white:#f8fffe;
+      --text:#1a2e44;--text-muted:#4a7a78;--text-light:#7aadaa;
+      --border:#b2dfdb;--card-bg:#fff;
+      --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+      --warning:#92400e;--warning-bg:#fef9ec;
+      --shadow:0 4px 24px rgba(13,148,136,.10);
+      --shadow-lg:0 16px 48px rgba(13,148,136,.16);
+      --sidebar-w:240px;
+    }
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--cream);
+      color:var(--text);
+      display:flex;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    .sidebar{
+      width:var(--sidebar-w);
+      min-height:100vh;
+      background:var(--navy);
+      display:flex;
+      flex-direction:column;
+      position:fixed;
+      left:0;top:0;bottom:0;
+      z-index:200;
+    }
+    .sb-brand{
+      padding:22px 18px 18px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .sb-brand img{
+      width:34px;height:34px;object-fit:contain;border-radius:8px;
+    }
+    .sb-brand-text span{
+      font-family:'Sora',sans-serif;
+      font-weight:700;
+      font-size:.92rem;
+      color:#fff;
+      display:block;
+    }
+    .sb-brand-text small{
+      font-size:.68rem;
+      color:rgba(255,255,255,.38);
+      display:block;
+      margin-top:1px;
+    }
+    .sb-user{
+      padding:14px 18px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .sb-avatar{
+      width:34px;height:34px;border-radius:10px;
+      background:linear-gradient(135deg,var(--teal),var(--teal-mid));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;color:#fff;
+      flex-shrink:0;
+    }
+    .sb-user-name{font-size:.85rem;font-weight:600;color:#fff;display:block}
+    .sb-user-role{font-size:.68rem;color:rgba(255,255,255,.38);display:block;margin-top:1px}
+    .sb-nav{
+      flex:1;
+      padding:12px 10px;
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      overflow-y:auto;
+    }
+    .sb-label{
+      font-size:.68rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.09em;
+      color:rgba(255,255,255,.25);
+      padding:10px 10px 6px;
+    }
+    .nav-item{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border-radius:12px;
+      cursor:pointer;transition:.15s;
+      text-decoration:none;font-size:.87rem;font-weight:500;
+      color:rgba(255,255,255,.5);
+      border:none;background:transparent;width:100%;text-align:left;
+      font-family:'DM Sans',sans-serif;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+    .nav-item.active{background:rgba(13,148,136,.28);color:#fff;font-weight:600}
+    .nav-item .ni{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+    .sb-footer{
+      padding:14px 10px;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
+    .sb-logout{
+      width:100%;
+      display:flex;align-items:center;gap:8px;
+      padding:10px 12px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      color:rgba(255,255,255,.45);
+      font-size:.83rem;font-weight:500;
+      cursor:pointer;transition:.15s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .sb-logout:hover{
+      background:rgba(220,38,38,.18);
+      border-color:rgba(220,38,38,.3);
+      color:#fca5a5;
+    }
+    .main{
+      margin-left:var(--sidebar-w);
+      flex:1;
+      padding:28px 32px;
+      min-height:100vh;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:28px;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .topbar-left h2{
+      font-family:'Sora',sans-serif;
+      font-weight:700;
+      font-size:1.45rem;
+      color:var(--text);
+    }
+    .topbar-left p{
+      font-size:.88rem;
+      color:var(--text-muted);
+      margin-top:3px;
+    }
+    .topbar-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .tb-btn{
+      display:flex;align-items:center;gap:7px;
+      padding:9px 16px;border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--card-bg);
+      color:var(--text-muted);
+      font-size:.84rem;font-weight:600;
+      cursor:pointer;transition:.15s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .tb-btn:hover{
+      border-color:var(--teal);
+      color:var(--teal);
+      background:var(--teal-light);
+    }
+    .tb-btn.primary{
+      background:var(--teal);
+      color:#fff;
+      border-color:var(--teal);
+    }
+    .tb-btn.primary:hover{background:var(--teal-dark)}
+    .stats-row{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:16px;
+      margin-bottom:28px;
+    }
+    .stat-card{
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:20px 18px;
+      cursor:pointer;
+      transition:.2s;
+      position:relative;
+      overflow:hidden;
+    }
+    .stat-card::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;right:0;
+      height:3px;
+      background:var(--teal);
+      border-radius:18px 18px 0 0;
+    }
+    .stat-card:hover{
+      transform:translateY(-3px);
+      box-shadow:var(--shadow-lg);
+      border-color:rgba(13,148,136,.3);
+    }
+    .stat-card .sc-label{
+      font-size:.8rem;
+      color:var(--text-muted);
+      font-weight:500;
+      margin-bottom:10px;
+      display:block;
+    }
+    .stat-card .sc-num{
+      font-family:'Sora',sans-serif;
+      font-weight:700;
+      font-size:2rem;
+      color:var(--teal);
+      display:block;
+    }
+    .stat-card .sc-icon{
+      position:absolute;
+      right:16px;top:16px;
+      font-size:1.4rem;
+      opacity:.25;
+    }
+    .section{display:none}
+    .section.active{display:block}
+    .page-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:24px;
+      padding-bottom:20px;
+      border-bottom:1px solid var(--border);
+    }
+    .page-header-left h3{
+      font-family:'Sora',sans-serif;
+      font-weight:700;
+      font-size:1.15rem;
+      color:var(--text);
+    }
+    .page-header-left p{
+      font-size:.88rem;
+      color:var(--text-muted);
+      margin-top:4px;
+      max-width:680px;
+      line-height:1.5;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:var(--teal-light);
+      color:var(--teal-dark);
+      border:1px solid rgba(13,148,136,.2);
+      border-radius:100px;
+      padding:6px 14px;
+      font-size:.78rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .cards-grid{display:grid;gap:14px}
+    .card{
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:20px;
+      transition:.2s;
+    }
+    .card:hover{
+      box-shadow:var(--shadow);
+      border-color:rgba(13,148,136,.2);
+    }
+    .card-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .card-title{
+      font-family:'Sora',sans-serif;
+      font-weight:600;
+      font-size:.98rem;
+      color:var(--text);
+    }
+    .card-sub{
+      font-size:.85rem;
+      color:var(--text-muted);
+      line-height:1.55;
+      margin-bottom:12px;
+    }
+    .card-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .tag{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:100px;
+      font-size:.75rem;
+      font-weight:700;
+    }
+    .tag-green{background:var(--teal-light);color:var(--teal-dark)}
+    .tag-yellow{background:var(--warning-bg);color:var(--warning)}
+    .tag-red{background:var(--danger-bg);color:var(--danger)}
+    .tag-navy{background:#e8edf5;color:var(--navy)}
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:18px;
+    }
+    .form-group{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .form-group label{
+      font-size:.83rem;
+      font-weight:700;
+      color:var(--text);
+    }
+    .form-group input,.form-group select,.form-group textarea{
+      min-height:46px;
+      border:1.5px solid var(--border);
+      border-radius:12px;
+      padding:12px 14px;
+      background:var(--warm-white);
+      font-size:.92rem;
+      color:var(--text);
+      outline:none;
+      transition:.2s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .form-group textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+      border-color:var(--teal);
+      box-shadow:0 0 0 3px rgba(13,148,136,.1);
+      background:#fff;
+    }
+    .form-actions,.action-row,.inline-actions,.modal-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      border:none;
+      border-radius:12px;
+      padding:10px 18px;
+      font-size:.88rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:.2s;
+      font-family:'DM Sans',sans-serif;
+    }
+    .btn-primary{background:var(--teal);color:#fff}
+    .btn-primary:hover{background:var(--teal-dark);transform:translateY(-1px)}
+    .btn-secondary{
+      background:var(--card-bg);
+      color:var(--text-muted);
+      border:1.5px solid var(--border);
+    }
+    .btn-secondary:hover{
+      border-color:var(--teal);
+      color:var(--teal);
+      background:var(--teal-light);
+    }
+    .btn-danger{
+      background:var(--danger-bg);
+      color:var(--danger);
+      border:1.5px solid var(--danger-border);
+    }
+    .btn-danger:hover{background:#fee2e2}
+    .btn-sm{
+      padding:7px 13px;
+      font-size:.8rem;
+      border-radius:9px;
+    }
+    .empty{
+      text-align:center;
+      padding:48px 24px;
+      background:var(--card-bg);
+      border:1.5px dashed var(--border);
+      border-radius:18px;
+      color:var(--text-muted);
+    }
+    .empty .empty-icon{
+      font-size:2.4rem;
+      margin-bottom:12px;
+      opacity:.5;
+    }
+    .empty p{
+      font-size:.9rem;
+      line-height:1.6;
+    }
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(26,46,68,.25);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:500;
+      padding:20px;
+    }
+    .modal-overlay.active{display:flex}
+    .modal{
+      width:100%;
+      max-width:620px;
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:0 32px 64px rgba(13,148,136,.18);
+    }
+    .modal h3{
+      font-family:'Sora',sans-serif;
+      font-weight:700;
+      font-size:1.1rem;
+      margin-bottom:6px;
+      color:var(--text);
+    }
+    .modal p{
+      font-size:.88rem;
+      color:var(--text-muted);
+      margin-bottom:20px;
+      line-height:1.5;
+    }
+    .modal-form{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .toast{
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%) translateY(-20px);
+      background:var(--navy);
+      color:#fff;
+      padding:11px 18px;
+      border-radius:12px;
+      font-size:.88rem;
+      font-weight:600;
+      box-shadow:0 14px 30px rgba(26,46,68,.2);
+      opacity:0;
+      pointer-events:none;
+      transition:.25s;
+      z-index:999;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+    @media(max-width:1200px){
+      .stats-row{grid-template-columns:repeat(3,1fr)}
+    }
+    @media(max-width:980px){
+      .stats-row{grid-template-columns:repeat(2,1fr)}
+      .form-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:860px){
+      .sidebar{transform:translateX(-100%)}
+      .main{margin-left:0;padding:20px 18px}
+    }
+    @media(max-width:600px){
+      .stats-row{grid-template-columns:1fr}
+      .topbar{flex-direction:column;align-items:flex-start}
+    }
+  
+.usuario-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:18px;
+    background:#fff;
+    border:1px solid #dbe7e7;
+    border-radius:16px;
+    margin-bottom:12px;
+    transition:.2s;
+}
+.usuario-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08);}
+.usuario-info h4{margin:0 0 8px;color:#1a2e44;font-size:1.1rem;}
+.usuario-info p{margin:3px 0;color:#4a7a78;}
+.usuario-acoes{display:flex;gap:10px;flex-wrap:wrap;}
+.status-ativo,.status-inativo{display:inline-block;margin-top:8px;padding:6px 12px;border-radius:999px;font-size:.85rem;font-weight:600;}
+.status-ativo{background:#dcfce7;color:#166534;}
+.status-inativo{background:#fee2e2;color:#991b1b;}
+.btn-editar,.btn-desativar,.btn-ativar{border:none;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;color:#fff;}
+.btn-editar{background:#f59e0b;}
+.btn-desativar{background:#dc2626;}
+.btn-ativar{background:#16a34a;}
+
+
+.feedback-card{display:flex;align-items:center;gap:16px;padding:18px;margin-bottom:20px;border-left:5px solid #16a34a;background:#f0fdf4;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.feedback-icon{width:48px;height:48px;border-radius:50%;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold}
+.feedback-content h4{margin:0;color:#166534}
+.feedback-content p{margin:4px 0 0;color:#166534}
+.feedback-close{margin-left:auto;border:none;background:none;font-size:24px;cursor:pointer;color:#166534;cursor:pointer}
+.feedback-error{background:#fef2f2;border-left-color:#dc2626}
+.feedback-error .feedback-icon{background:#dc2626}
+
+.pet-card{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px;background:#fff;border:1px solid #dbe7e7;border-radius:16px;margin-bottom:12px}
+.pet-info h4{margin:0 0 8px}
+.pet-acoes{display:flex;gap:10px;flex-wrap:wrap}
+.consulta-card{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px;background:#fff;border:1px solid #dbe7e7;border-radius:16px;margin-bottom:12px}
+.consulta-info h4{margin:0 0 8px}
+.consulta-acoes{display:flex;gap:10px;flex-wrap:wrap}
+.btn-concluir{background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+
+.aviso-card{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:18px;background:#fff;border:1px solid #dbe7e7;border-radius:16px;margin-bottom:12px}
+.aviso-info h4{margin:0 0 8px}
+.aviso-acoes{display:flex;gap:10px;flex-wrap:wrap}
+.badge-aviso{display:inline-block;padding:5px 10px;border-radius:999px;background:#e0f7f5;color:#0c6e6e;font-size:.8rem;font-weight:600}
+.aviso-lido{opacity:.75;border-left:5px solid #16a34a}
+
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-brand">
+    <img src="logo-petcare.png" alt="PetCare Connect">
+    <div class="sb-brand-text">
+      <span>PetCare Connect</span>
+      <small>Sistema veterinário</small>
+    </div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-avatar" id="sbAvatar">⚙️</div>
+    <div>
+      <span class="sb-user-name" id="sbUserName">Administração</span>
+      <span class="sb-user-role">Área Administrativa</span>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-label">Menu</div>
+    <button class="nav-item active" data-sec="inicio" onclick="openSection('inicio')"><span class="ni">🏠</span> Início</button>
+    <button class="nav-item" data-sec="usuarios" onclick="openSection('usuarios')"><span class="ni">👤</span> Usuários</button>
+    <button class="nav-item" data-sec="pets" onclick="openSection('pets')"><span class="ni">🐾</span> Pets</button>
+    <button class="nav-item" data-sec="consultas" onclick="openSection('consultas')"><span class="ni">📅</span> Consultas</button>
+    <button class="nav-item" data-sec="relatorios" onclick="openSection('relatorios')"><span class="ni">📄</span> Relatórios</button>
+    <button class="nav-item" data-sec="avisos" onclick="openSection('avisos')"><span class="ni">📢</span> Avisos</button>
+  </nav>
+
+  <div class="sb-footer">
+    <button class="sb-logout" onclick="logout()">↩ Sair do sistema</button>
+  </div>
+</aside>
+
+<main class="main">
+
+
+  <div class="stats-row">
+    <div class="stat-card" onclick="openSection('usuarios')">
+      <span class="sc-icon">👤</span>
+      <span class="sc-label">Usuários</span>
+      <span class="sc-num" id="totalUsuarios">0</span>
+    </div>
+    <div class="stat-card" onclick="openSection('pets')">
+      <span class="sc-icon">🐾</span>
+      <span class="sc-label">Pets</span>
+      <span class="sc-num" id="totalPets">0</span>
+    </div>
+    <div class="stat-card" onclick="openSection('consultas')">
+      <span class="sc-icon">📅</span>
+      <span class="sc-label">Consultas</span>
+      <span class="sc-num" id="totalConsultas">0</span>
+    </div>
+    <div class="stat-card" onclick="openSection('relatorios')">
+      <span class="sc-icon">📄</span>
+      <span class="sc-label">Relatórios</span>
+      <span class="sc-num" id="totalRelatorios">0</span>
+    </div>
+    <div class="stat-card" onclick="openSection('avisos')">
+      <span class="sc-icon">📢</span>
+      <span class="sc-label">Avisos</span>
+      <span class="sc-num" id="totalAvisos">0</span>
+    </div>
+  </div>
+
+  <section id="inicio" class="section active">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Painel administrativo</h3>
+        <p>Área central de gerenciamento do sistema PetCare Connect.</p>
+      </div>
+      <span class="chip">Visão geral</span>
+    </div>
+    <div class="cards-grid" id="painelResumo"></div>
+  </section>
+
+  <section id="usuarios" class="section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Gerenciar usuários</h3>
+        <p>Cadastre novos tutores e veterinários e atualize os dados dos usuários existentes.</p>
+      </div>
+      <span class="chip">Usuários</span>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">Cadastrar novo usuário</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Perfil</label>
+          <select id="novoPerfil" onchange="toggleNovoUsuarioCampos()">
+            <option value="Tutor">Tutor</option>
+            <option value="Veterinario">Veterinário</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome</label>
+          <input id="novoNome" type="text" placeholder="Nome completo">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input id="novoEmail" type="email" pattern=".+@(gmail\.com|hotmail\.com)"title="Use Gmail ou Hotmail">
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input id="novoTelefone" 
+          oninput="formatarTelefone(this)"
+          maxlength="15">
+        </div>
+        <div class="form-group" id="novoEnderecoGroup">
+          <label>Endereço</label>
+          <input id="novoEndereco" type="text" placeholder="Endereço completo">
+        </div>
+        <div class="form-group" id="novoConvenioGroup">
+          <label>Status do convênio</label>
+          <select id="novoConvenio">
+            <option value="Ativo">Ativo</option>
+            <option value="Pendente">Pendente</option>
+          </select>
+        </div>
+        <div class="form-group" id="novoRegistroGroup" style="display:none">
+          <label>Número de registro</label>
+          <input id="novoRegistro" type="text" placeholder="Ex.: CRMV 12345">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="cadastrarUsuario()">＋ Cadastrar usuário</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="listaUsuarios"></div>
+  </section>
+
+  <section id="pets" class="section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Gerenciar pets</h3>
+        <p>Cadastre novos pets e atualize os dados dos pets já existentes.</p>
+      </div>
+      <span class="chip">Pets</span>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">Cadastrar novo pet</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome do pet</label>
+          <input id="novoPetNome" type="text" placeholder="Ex.: Luna">
+        </div>
+        <div class="form-group">
+          <label>Tutor</label>
+          <select id="novoPetTutor"></select>
+
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="novoPetTipo">
+            <option value="">Selecione</option>
+            <option>Cachorro</option>
+            <option>Gato</option>
+            <option>Pássaro</option>
+            <option>Coelho</option>
+            <option>Hamster</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Idade</label>
+          <input id="novoPetIdade" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 4" oninput="somenteInteiroPositivo(this)" onkeydown="bloquearTeclasInvalidasInteiro(event)">
+        </div>
+        <div class="form-group">
+          <label>Peso (kg)</label>
+          <input id="novoPetPeso" type="text" inputmode="decimal" placeholder="Ex.: 12,4" oninput="formatarPeso(this)">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="cadastrarPet()">＋ Cadastrar pet</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="listaPets"></div>
+  </section>
+
+  <section id="consultas" class="section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Gerenciar consultas</h3>
+        <p>Agende, conclua ou desmarque consultas da clínica.</p>
+      </div>
+      <span class="chip">Consultas</span>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">Agendar consulta</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pet</label>
+          <select id="novaConsultaPet"></select>
+        </div>
+        <div class="form-group">
+          <label>Veterinário(a)</label>
+          <select id="novaConsultaVet"></select>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input id="novaConsultaData" type="date">
+        </div>
+        <div class="form-group">
+          <label>Hora</label>
+          <select id="novaConsultaHora"></select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="agendarConsulta()">📅 Agendar consulta</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="listaConsultas"></div>
+  </section>
+
+  <section id="relatorios" class="section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Acesso total aos relatórios</h3>
+        <p>Visualize todos os relatórios emitidos no sistema para todos os pets cadastrados.</p>
+      </div>
+      <span class="chip">Relatórios</span>
+    </div>
+
+    <div class="cards-grid" id="listaRelatorios"></div>
+  </section>
+
+  <section id="avisos" class="section">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h3>Publicar avisos</h3>
+        <p>Escolha para quem o aviso será enviado: todos, um tutor(a) específico ou um veterinário(a) específico.</p>
+      </div>
+      <span class="chip">Avisos</span>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Título</label>
+          <input id="novoAvisoTitulo" type="text" placeholder="Ex.: Horário especial">
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <input id="novoAvisoTipo" type="text" placeholder="Ex.: Comunicado">
+        </div>
+        <div class="form-group">
+          <label>Enviar para</label>
+          <select id="destinoAviso" onchange="toggleDestinoAviso()">
+            <option value="geral">Todos</option>
+            <option value="tutor">Tutor(a)</option>
+            <option value="vet">Veterinário(a)</option>
+          </select>
+        </div>
+        <div class="form-group" id="grupoDestinoTutor" style="display:none">
+          <label>Selecionar tutor(a)</label>
+          <select id="destinoTutor"></select>
+        </div>
+        <div class="form-group" id="grupoDestinoVet" style="display:none">
+          <label>Selecionar veterinário(a)</label>
+          <select id="destinoVet"></select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Mensagem</label>
+        <textarea id="novoAvisoTexto" placeholder="Digite o conteúdo do aviso."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="publicarAviso()">📢 Publicar aviso</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="listaAvisos"></div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="modalUsuario">
+  <div class="modal">
+    <h3>Atualizar usuário</h3>
+    <p>Edite os dados do usuário selecionado.</p>
+
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Nome</label>
+        <input id="editUserNome" type="text">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="editUserEmail" type="email">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input id="editUserTelefone" type="text">
+      </div>
+      <div class="form-group">
+        <label>Perfil</label>
+        <select id="editUserPerfil">
+          <option value="Tutor">Tutor</option>
+          <option value="Veterinario">Veterinário</option>
+          <option value="Admin">Administrador</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <select id="editUserAtivo">
+          <option value="true">Ativo</option>
+          <option value="false">Inativo</option>
+        </select>
+      </div>
+      <div class="form-group" id="editUserEnderecoGroup">
+        <label>Endereço</label>
+        <input id="editUserEndereco" type="text">
+      </div>
+      <div class="form-group" id="editUserConvenioGroup">
+        <label>Status do convênio</label>
+        <select id="editUserConvenio">
+          <option value="Ativo">Ativo</option>
+          <option value="Pendente">Pendente</option>
+        </select>
+      </div>
+      <div class="form-group" id="editUserRegistroGroup" style="display:none">
+        <label>Número de registro</label>
+        <input id="editUserRegistro" type="text">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarUsuarioEditado()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalPet">
+  <div class="modal">
+    <h3>Atualizar pet</h3>
+    <p>Edite os dados do pet selecionado.</p>
+
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Nome do pet</label>
+        <input id="editPetNome" type="text">
+      </div>
+      <div class="form-group">
+        <label>Tutor</label>
+        <select id="editPetTutor"></select>
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="editPetTipo">
+          <option value="">Selecione</option>
+          <option>Cachorro</option>
+          <option>Gato</option>
+          <option>Pássaro</option>
+          <option>Coelho</option>
+          <option>Hamster</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Idade</label>
+        <input id="editPetIdade" type="number" min="1" step="1" inputmode="numeric" oninput="somenteInteiroPositivo(this)" onkeydown="bloquearTeclasInvalidasInteiro(event)">
+      </div>
+      <div class="form-group">
+        <label>Peso (kg)</label>
+        <input id="editPetPeso" type="text" inputmode="decimal" oninput="formatarPeso(this)">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalPet')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarPetEditado()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalAviso">
+  <div class="modal">
+    <h3>Editar aviso</h3>
+    <p>Atualize o conteúdo e o destino do aviso selecionado.</p>
+
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Título</label>
+        <input id="editAvisoTitulo" type="text">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <input id="editAvisoTipoTexto" type="text">
+      </div>
+      <div class="form-group">
+        <label>Enviar para</label>
+        <select id="editDestinoAviso" onchange="toggleDestinoAvisoEdicao()">
+          <option value="geral">Todos</option>
+          <option value="tutor">Tutor(a)</option>
+          <option value="vet">Veterinário(a)</option>
+        </select>
+      </div>
+      <div class="form-group" id="grupoEditDestinoTutor" style="display:none">
+        <label>Selecionar tutor(a)</label>
+        <select id="editDestinoTutor"></select>
+      </div>
+      <div class="form-group" id="grupoEditDestinoVet" style="display:none">
+        <label>Selecionar veterinário(a)</label>
+        <select id="editDestinoVet"></select>
+      </div>
+      <div class="form-group">
+        <label>Mensagem</label>
+        <textarea id="editAvisoTexto"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modalAviso')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarAvisoEditado()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirmação</h3>
+    <p id="confirmText">Deseja continuar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancelar</button>
+      <button class="btn btn-danger" onclick="closeConfirm(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+// ── Auth Guard ─────────────────────────────────────────
+if (!petcareRequireAuth('Admin')) { /* redireciona */ }
+
+const sess = petcareGetSession();
+sess.usuarioId = Number(sess.usuarioId);
+
+if (sess?.nome) {
+    const nome = sess.nome;
+
+    const el = document.getElementById('sbUserName');
+    if (el) el.textContent = nome;
+
+    const welcome = document.getElementById('welcomeTitle');
+    if (welcome) welcome.textContent = `Bem-vindo(a), ${nome} 👋`;
+
+    const avatar = document.getElementById('sbAvatar');
+    if (avatar) avatar.textContent = '⚙️';
+}
+
+function logout() { petcareLogout(); }
+
+function abrirSecao(secao, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(secao).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+function openSection(secao){
+
+    document.querySelectorAll('.section')
+        .forEach(s => s.classList.remove('active'));
+
+    const destino =
+        document.getElementById(secao);
+
+    if(destino){
+        destino.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-item')
+        .forEach(btn => {
+
+            btn.classList.remove('active');
+
+            if(btn.dataset.sec === secao){
+                btn.classList.add('active');
+            }
+        });
+}
+
+// ── DASHBOARD ──────────────────────────────────────────
+async function carregarEstatisticas() {
+    const result = await petcareEstatisticasComAvisos();
+    const stats  = result?.dados || {};
+
+    const map = {
+        'totalUsuarios':    stats.Usuarios    ?? 0,
+        'totalPets':        stats.Pets         ?? 0,
+        'totalConsultas':   stats.Consultas    ?? 0,
+        'totalAvisos': stats.Avisos ?? 0,
+        'totalVacinas':     stats.VacinasAplicadas ?? 0,
+        'totalTutores':     stats.Tutores      ?? 0,
+        'totalVeterinarios':stats.Veterinarios ?? 0,
+        'consultasHoje':    stats.ConsultasHoje ?? 0,
+    };
+
+    Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    });
+}
+
+// ── USUÁRIOS ───────────────────────────────────────────
+async function carregarUsuarios() {
+    const result = await petcareListarUsuarios();
+    const usuarios = result?.dados || [];
+    const lista = document.getElementById('listaUsuarios');
+    if (!lista) return;
+
+    if (!usuarios.length) {
+        lista.innerHTML = `<p style="color:var(--text-muted)">Nenhum usuário cadastrado.</p>`;
+        return;
+    }
+
+    lista.innerHTML = usuarios.map(u => `
+        <div class="usuario-card">
+            <div class="usuario-info">
+                <h4>${u.nome}</h4>
+                <p><strong>Login:</strong> ${u.login}</p>
+                <p><strong>Perfil:</strong> ${u.perfil}</p>
+                <span class="${u.ativo ? 'status-ativo' : 'status-inativo'}">
+                    ${u.ativo ? '✅ Ativo' : '🚫 Inativo'}
+                </span>
+            </div>
+            <div class="usuario-acoes">
+                <button class="btn-editar"
+                    onclick="abrirModalEditarUsuario(${u.id}, '${u.nome}', '${u.email}', '${u.perfil}', ${u.ativo})">
+                    ✏️ Editar
+                </button>
+                ${u.ativo
+                    ? `<button class="btn-desativar" onclick="toggleAtivo(${u.id}, false)">🚫 Desativar</button>`
+                    : `<button class="btn-ativar" onclick="toggleAtivo(${u.id}, true)">✅ Ativar</button>`}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function criarUsuario() {
+
+
+    const nome      = document.getElementById('novoNome')?.value.trim();
+    const email     = document.getElementById('novoEmail')?.value.trim();
+    const perfil    = document.getElementById('novoPerfil')?.value;
+
+    if (!nome || !email || !perfil) {
+        mostrarFeedback('Campos obrigatórios','Preencha nome, e-mail e perfil.',false);
+        return;
+    }
+
+    const login = email.split('@')[0];
+    const senha = 'PetCare123';
+
+    const result = await petcareCriarUsuario({
+        nome: nome,
+        login: login,
+        senha: senha,
+        perfil: perfil.replace('(a)','').replace('ário(a)','ario').replace('Tutor(a)','Tutor').replace('Veterinário(a)','Veterinario'),
+        email: email
+    });
+
+    if (!result?.sucesso) {
+        mostrarFeedback('Erro', result?.mensagem || 'Erro ao criar usuário.', false);
+        return;
+    }
+
+    mostrarFeedback('Sucesso','Usuário criado com sucesso!',true);
+
+    ['novoNome','novoEmail','novoTelefone','novoEndereco']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+
+    await carregarUsuarios();
+    await carregarEstatisticas();
+}
+
+
+async function toggleAtivo(id, novoEstado) {
+    const result = await petcareToggleAtivo(id, novoEstado);
+    if (!result?.sucesso) {
+        mostrarFeedback('Erro', result?.mensagem || 'Erro.', false);
+        return;
+    }
+    await carregarUsuarios();
+    await carregarEstatisticas();
+}
+
+// ── PETS ───────────────────────────────────────────────
+async function carregarTodosPets() {
+    const result = await petcareListarPets();
+    const pets = result?.dados || [];
+    const lista = document.getElementById('listaPets');
+    if (!lista) return;
+
+    lista.innerHTML = pets.length ? pets.map(p => `
+    <div class="pet-card">
+      <div class="pet-info">
+        <h4>${p.nome}</h4>
+        <p><strong>Tipo:</strong> ${p.tipo}</p>
+        <p><strong>Tutor:</strong> ${p.tutorNome || '-'}</p>
+        <p><strong>Idade:</strong> ${p.idade} ano(s) | <strong>Peso:</strong> ${p.peso} kg</p>
+      </div>
+      <div class="pet-acoes">
+        <button class="btn-editar" onclick="editarPet(${p.id}, '${p.nome}', '${p.tipo}', ${p.idade}, ${p.peso}, ${p.tutorId || 0})">✏️ Editar</button>
+        <button class="btn-desativar" onclick="excluirPet(${p.id})">🗑️ Excluir</button>
+      </div>
+    </div>`).join('')
+    : `<p style="color:var(--text-muted)">Nenhum pet cadastrado.</p>`;
+}
+
+// ── CONSULTAS ──────────────────────────────────────────
+
+async function carregarTodasConsultas() {
+    const result = await petcareListarConsultas();
+    const consultas = result?.dados || [];
+    const lista = document.getElementById('listaConsultas');
+    if (!lista) return;
+
+    lista.innerHTML = consultas.length ? consultas.map(c => `
+    <div class="consulta-card">
+        <div class="consulta-info">
+            <h4>${c.petNome} — ${c.data} às ${c.hora}</h4>
+            <p><strong>Veterinário:</strong> ${c.vetNome}</p>
+            <p><strong>Status:</strong> ${c.status}</p>
+        </div>
+        <div class="consulta-acoes">
+            ${c.status === 'Marcada' ? `<button class="btn-concluir" onclick="concluirConsulta(${c.id})">✓ Concluída</button>` : ''}
+            ${c.status === 'Marcada' ? `<button class="btn-desativar" onclick="abrirConfirmacaoCancelamento(${c.id})">✕ Cancelar</button>` : ''}
+        </div>
+    </div>`).join('')
+    : `<p style="color:var(--text-muted)">Nenhuma consulta encontrada.</p>`;
+}
+
+async function concluirConsulta(id){
+    const result =
+        await petcareAtualizarStatusConsulta(
+            id,
+            'Realizada'
+        );
+    if(!result?.sucesso){
+        mostrarFeedback('Erro', result?.mensagem || 'Erro ao concluir consulta.', false);
+        return;
+    }
+    mostrarFeedback('Sucesso','Consulta concluída com sucesso!',true);
+    await carregarTodasConsultas();
+}
+
+async function cancelarConsulta(id) {
+    abrirConfirmacaoCancelamento(id);
+}
+
+// ── AVISOS ─────────────────────────────────────────────
+async function carregarAvisos() {
+    const result = await petcareListarAvisos();
+    const avisos = result?.dados || [];
+    const lista  = document.getElementById('listaAvisos');
+    if (!lista) return;
+
+    const total = document.getElementById('totalAvisos');
+    if(total) total.textContent = avisos.length;
+
+    lista.innerHTML = avisos.length ? avisos.map(a => `
+        <div class="aviso-card ${a.lido ? 'aviso-lido' : ''}">
+            <div class="aviso-info">
+                <h4>📢 ${a.titulo}</h4>
+                <p>${a.texto}</p>
+                <span class="badge-aviso">${a.tipo || 'Aviso'}</span>
+            </div>
+            <div class="aviso-acoes">
+                ${!a.lido ? `<button class="btn-concluir" onclick="marcarAvisoLido(${a.id})">✓ Lido</button>` : ''}
+            </div>
+        </div>`).join('')
+        : `<p style="color:var(--text-muted)">Sem avisos publicados.</p>`;
+}
+
+async function marcarAvisoLido(id){
+    if(typeof petcareMarcarAvisoLido !== 'function') return;
+    const r = await petcareMarcarAvisoLido(id);
+    if(r?.sucesso){
+        mostrarFeedback('Sucesso','Aviso marcado como lido!',true);
+        carregarAvisos();
+    }
+}
+
+async function enviarAviso() {
+
+    const titulo =
+        document.getElementById('novoAvisoTitulo')?.value?.trim();
+
+    const texto =
+        document.getElementById('novoAvisoTexto')?.value?.trim();
+
+    if (!titulo || !texto) {
+        mostrarFeedback(
+            'Campos obrigatórios',
+            'Preencha o título e o texto.',
+            false
+        );
+        return;
+    }
+
+    const result =
+        await petcareCriarAviso(
+            titulo,
+            texto,
+            'geral'
+        );
+
+    if (!result?.sucesso) {
+
+        mostrarFeedback(
+            'Erro',
+            result?.mensagem || 'Erro.',
+            false
+        );
+
+        return;
+    }
+
+    mostrarFeedback(
+        'Sucesso',
+        'Aviso publicado!',
+        true
+    );
+
+    mostrarModalSucessoAviso();
+
+    const campoTitulo =
+        document.getElementById('novoAvisoTitulo');
+
+    const campoTexto =
+        document.getElementById('novoAvisoTexto');
+
+    if (campoTitulo) campoTitulo.value = '';
+    if (campoTexto) campoTexto.value = '';
+
+    await carregarAvisos();
+    await carregarEstatisticas();
+    await carregarPainelResumo();
+    await carregarRelatorios();
+}
+
+
+async function carregarPainelResumo(){
+    const painel = document.getElementById('painelResumo');
+    if(!painel) return;
+
+    try{
+        const usuarios = (await petcareListarUsuarios())?.dados || [];
+        const pets = (await petcareListarPets())?.dados || [];
+        const consultas = (await petcareListarConsultas())?.dados || [];
+        const avisos = (await petcareListarAvisos())?.dados || [];
+
+        painel.innerHTML = `
+        <div class="card">
+            <div class="card-title">👥 Últimos usuários</div>
+            <div class="card-sub">Total cadastrados: ${usuarios.length}</div>
+            ${(usuarios.slice(0,3).map(u=>`
+                <div style="padding:10px;border:1px solid var(--border);border-radius:12px;margin-top:8px">
+                    <div class="card-title">${u.nome}</div>
+                    <div class="card-sub" style="margin-bottom:0">${u.perfil || 'Usuário'}</div>
+                </div>
+            `).join('')) || '<div class="card-sub">Nenhum usuário.</div>'}
+        </div>
+
+        <div class="card">
+            <div class="card-title">🐾 Pets recentes</div>
+            <div class="card-sub">Total cadastrados: ${pets.length}</div>
+            ${(pets.slice(0,3).map(p=>`
+                <div style="padding:10px;border:1px solid var(--border);border-radius:12px;margin-top:8px">
+                    <div class="card-title">${p.nome}</div>
+                    <div class="card-sub" style="margin-bottom:0">${p.tipo || ''}</div>
+                </div>
+            `).join('')) || '<div class="card-sub">Nenhum pet.</div>'}
+        </div>
+
+        <div class="card">
+            <div class="card-title">📅 Próximas consultas</div>
+            <div class="card-sub">Consultas encontradas: ${consultas.length}</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📢 Avisos</div>
+            <div class="card-sub">Avisos publicados: ${avisos.length}</div>
+        </div>
+        `;
+    }catch(e){
+        console.error(e);
+    }
+}
+
+async function carregarPetsConsulta(){
+
+    const result =
+        await petcareListarPets();
+
+    const pets =
+        result?.dados || [];
+
+    const select =
+        document.getElementById('novaConsultaPet');
+
+    if(!select) return;
+
+    select.innerHTML =
+        '<option value="">Selecione um pet</option>';
+
+    pets.forEach(p => {
+
+        select.innerHTML += `
+            <option value="${p.id}">
+                ${p.nome}
+            </option>
+        `;
+    });
+}
+
+async function carregarVeterinariosConsulta(){
+
+    const result =
+        await petcareListarVeterinarios();
+
+    const vets =
+        result?.dados || [];
+
+    const select =
+        document.getElementById('novaConsultaVet');
+
+    if(!select) return;
+
+    select.innerHTML =
+        '<option value="">Selecione um veterinário</option>';
+
+    vets.forEach(v => {
+
+        select.innerHTML += `
+            <option value="${v.id}">
+                ${v.nome}
+            </option>
+        `;
+    });
+}
+
+function carregarHorariosConsulta(){
+
+    const select =
+        document.getElementById('novaConsultaHora');
+
+    if(!select) return;
+
+    select.innerHTML =
+        '<option value="">Selecione um horário</option>';
+
+    petcareHorariosDisponiveis()
+        .forEach(h => {
+
+            select.innerHTML += `
+                <option value="${h}">
+                    ${h}
+                </option>
+            `;
+        });
+}
+
+
+async function carregarDestinatariosAviso(){
+    try{
+        const usuarios = (await petcareListarUsuarios())?.dados || [];
+
+        const tutores = usuarios.filter(u =>
+            String(u.perfil).toLowerCase().includes('tutor')
+        );
+
+        const vets = usuarios.filter(u =>
+            String(u.perfil).toLowerCase().includes('veter')
+        );
+
+        const destinoTutor = document.getElementById('destinoTutor');
+        const editDestinoTutor = document.getElementById('editDestinoTutor');
+        const destinoVet = document.getElementById('destinoVet');
+        const editDestinoVet = document.getElementById('editDestinoVet');
+
+        [destinoTutor,editDestinoTutor].forEach(select=>{
+            if(select){
+                select.innerHTML='<option value="">Selecione um tutor</option>';
+                tutores.forEach(t=>{
+                    select.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+                });
+            }
+        });
+
+        [destinoVet,editDestinoVet].forEach(select=>{
+            if(select){
+                select.innerHTML='<option value="">Selecione um veterinário</option>';
+                vets.forEach(v=>{
+                    select.innerHTML += `<option value="${v.id}">${v.nome}</option>`;
+                });
+            }
+        });
+    }catch(e){console.error(e);}
+}
+
+
+// ── INICIALIZAÇÃO ──────────────────────────────────────
+(async function init() {
+
+    await carregarEstatisticas();
+
+    await carregarUsuarios();
+
+    await carregarTutores();
+
+    await carregarTodosPets();
+
+    await carregarPetsConsulta();
+
+    await carregarVeterinariosConsulta();
+    await carregarDestinatariosAviso();
+
+    carregarHorariosConsulta();
+
+    await carregarTodasConsultas();
+
+    await carregarAvisos();
+
+    await carregarPainelResumo();
+    await carregarRelatorios();
+
+    const campoData =
+    document.getElementById('novaConsultaData');
+
+if (campoData) {
+
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+
+    const mes =
+        String(hoje.getMonth() + 1)
+            .padStart(2, '0');
+
+    const dia =
+        String(hoje.getDate())
+            .padStart(2, '0');
+
+    campoData.min =
+        `${ano}-${mes}-${dia}`;
+}
+
+})();
+
+
+// ===== Correções rápidas =====
+function cadastrarUsuario(){ return criarUsuario(); }
+
+function formatarPeso(input){
+  let v=(input.value||'').replace(/[^0-9,\.]/g,'');
+  input.value=v.replace('.',',');
+}
+
+function somenteInteiroPositivo(input){
+  input.value=(input.value||'').replace(/\D/g,'');
+}
+
+function bloquearTeclasInvalidasInteiro(e){
+  if(['e','E','+','-','.',','].includes(e.key)) e.preventDefault();
+}
+
+function toggleDestinoAviso(){
+ const v=document.getElementById('destinoAviso')?.value;
+ const t=document.getElementById('grupoDestinoTutor');
+ const vt=document.getElementById('grupoDestinoVet');
+ if(t) t.style.display=v==='tutor'?'block':'none';
+ if(vt) vt.style.display=v==='vet'?'block':'none';
+}
+
+function toggleDestinoAvisoEdicao(){
+ const v=document.getElementById('editDestinoAviso')?.value;
+ const t=document.getElementById('grupoEditDestinoTutor');
+ const vt=document.getElementById('grupoEditDestinoVet');
+ if(t) t.style.display=v==='tutor'?'block':'none';
+ if(vt) vt.style.display=v==='vet'?'block':'none';
+}
+
+async function publicarAviso(){ return enviarAviso(); }
+
+</script>
+
+<script>
+let usuarioEditandoId = null;
+
+function abrirModalEditarUsuario(id,nome,email,perfil,ativo){
+
+    usuarioEditandoId = id;
+
+    document.getElementById('editUserNome').value =
+        nome || '';
+
+    document.getElementById('editUserEmail').value =
+        email || '';
+
+    document.getElementById('editUserPerfil').value =
+        perfil || 'Tutor';
+
+    document.getElementById('editUserAtivo').value =
+        ativo ? 'true' : 'false';
+
+    document.getElementById('modalUsuario')
+        .classList.add('active');
+}
+
+function closeModal(id){
+    const modal = document.getElementById(id);
+    if(modal) modal.classList.remove('active');
+}
+
+async function salvarUsuarioEditado(){
+    const nome = document.getElementById('editUserNome').value.trim();
+    const email = document.getElementById('editUserEmail').value.trim();
+
+    const perfil =
+    document.getElementById('editUserPerfil').value;
+
+const ativo =
+    document.getElementById('editUserAtivo').value === 'true';
+
+const r = await petcareAtualizarUsuario(
+    usuarioEditandoId,
+    {
+        nome,
+        email,
+        perfil,
+        ativo
+    }
+);
+
+    if(r?.sucesso){
+        closeModal('modalUsuario');
+        await carregarUsuarios();
+        await carregarEstatisticas();
+    }else{
+        mostrarFeedback('Erro', r?.mensagem || 'Erro ao atualizar usuário.', false);
+    }
+}
+</script>
+
+
+<script>
+function mostrarModalSistema(titulo,texto){
+
+    let modal = document.getElementById('modalSistema');
+
+    if(!modal){
+
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="modalSistema"
+                 style="
+                    position:fixed;
+                    inset:0;
+                    background:rgba(0,0,0,.25);
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    z-index:99999;">
+
+                <div style="
+                    background:white;
+                    width:560px;
+                    max-width:90%;
+                    padding:30px;
+                    border-radius:24px;">
+
+                    <h2 id="modalSistemaTitulo">
+                        PetCare Connect
+                    </h2>
+
+                    <p id="modalSistemaTexto"></p>
+
+                    <div style="text-align:right;margin-top:20px;">
+                        <button
+                            class="btn btn-primary"
+                            onclick="fecharModalSistema()">
+                            OK
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        `);
+
+        modal = document.getElementById('modalSistema');
+    }
+
+    document.getElementById(
+        'modalSistemaTitulo'
+    ).textContent = titulo;
+
+    document.getElementById(
+        'modalSistemaTexto'
+    ).textContent = texto;
+
+    modal.style.display = 'flex';
+}
+function fecharModalSistema(){
+ document.getElementById('modalSistema').style.display='none';
+}
+function mostrarFeedback(titulo,mensagem,sucesso=true){
+ mostrarModalSistema(titulo,mensagem);
+}
+function fecharFeedback(){}
+
+async function carregarTutores(){
+
+    const result = await petcareListarUsuarios('Tutor');
+    const tutores = result?.dados || [];
+
+    const novoPetTutor = document.getElementById('novoPetTutor');
+    const editPetTutor = document.getElementById('editPetTutor');
+
+    if(novoPetTutor){
+        novoPetTutor.innerHTML = '<option value="">Selecione um tutor</option>';
+        tutores.forEach(t=>{
+            novoPetTutor.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+        });
+    }
+
+    if(editPetTutor){
+        editPetTutor.innerHTML = '<option value="">Selecione um tutor</option>';
+        tutores.forEach(t=>{
+            editPetTutor.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+        });
+    }
+}
+
+</script>
+
+<script>
+let petEditandoId=null;
+
+async function cadastrarPet(){
+ const nome=document.getElementById('novoPetNome').value.trim();
+ const tutorId=parseInt(document.getElementById('novoPetTutor').value);
+ const tipo=document.getElementById('novoPetTipo').value;
+ const idade=parseInt(document.getElementById('novoPetIdade').value);
+ const peso=parseFloat((document.getElementById('novoPetPeso').value||'0').replace(',','.'));
+ if(!nome||!tutorId||!tipo||!idade||!peso){
+   mostrarFeedback('Campos obrigatórios','Preencha todos os dados do pet.',false);
+   return;
+ }
+ const r=await petcareCriarPet(nome,tipo,idade,peso,tutorId);
+ if(r?.sucesso){
+   mostrarFeedback('Sucesso','Pet cadastrado com sucesso!',true);
+   await carregarTodosPets();
+ }else{
+   mostrarFeedback('Erro',r?.mensagem||'Erro ao cadastrar pet.',false);
+ }
+}
+
+async function editarPet(id,nome,tipo,idade,peso,tutorId){
+ petEditandoId=id;
+ await carregarTutores();
+ document.getElementById('editPetNome').value=nome||'';
+ document.getElementById('editPetTipo').value=tipo||'';
+ document.getElementById('editPetTutor').value=tutorId||'';
+ document.getElementById('editPetIdade').value=idade||'';
+ document.getElementById('editPetPeso').value=peso||'';
+ document.getElementById('modalPet').classList.add('active');
+}
+
+async function salvarPetEditado(){
+ const nome=document.getElementById('editPetNome').value.trim();
+ const tipo=document.getElementById('editPetTipo').value;
+ const tutorId=parseInt(document.getElementById('editPetTutor').value);
+ const idade=parseInt(document.getElementById('editPetIdade').value);
+ const peso=parseFloat((document.getElementById('editPetPeso').value||'0').replace(',','.'));
+
+ const r = await petcareAtualizarPet(
+    petEditandoId,
+    idade,
+    peso
+);
+
+ if(r?.sucesso){
+   closeModal('modalPet');
+   mostrarFeedback('Sucesso','Pet atualizado!',true);
+   await carregarTodosPets();
+ }else{
+   mostrarFeedback('Erro',r?.mensagem||'Erro ao atualizar pet.',false);
+ }
+}
+
+async function excluirPet(id){
+ const r=await petcareRemoverPet(id);
+ if(r?.sucesso){
+   mostrarFeedback('Sucesso','Pet excluído!',true);
+   await carregarTodosPets();
+ }else{
+   mostrarFeedback('Erro',r?.mensagem||'Erro ao excluir pet.',false);
+ }
+}
+
+async function agendarConsulta() {
+
+    const petId =
+        parseInt(
+            document.getElementById('novaConsultaPet').value
+        );
+
+    const veterinarioId =
+        parseInt(
+            document.getElementById('novaConsultaVet').value
+        );
+
+    const dataInput =
+        document.getElementById('novaConsultaData').value;
+
+    const hoje = new Date();
+
+hoje.setHours(0,0,0,0);
+
+const dataSelecionada =
+    new Date(dataInput);
+
+dataSelecionada.setHours(0,0,0,0);
+
+if (dataSelecionada.getTime() === hoje.getTime()) {
+
+    mostrarFeedback(
+        'Atenção',
+        'Consultas devem ser agendadas para uma data futura.',
+        false
+    );
+
+    return;
+}
+
+    if (!dataInput) {
+
+        mostrarFeedback(
+            'Atenção',
+            'Selecione uma data.',
+            false
+        );
+
+        return;
+    }
+
+    const partes =
+        dataInput.split('-');
+
+    const data =
+        `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+    const hora =
+        document.getElementById('novaConsultaHora').value;
+
+    if (!petId || !veterinarioId || !data || !hora) {
+
+        mostrarFeedback(
+            'Atenção',
+            'Preencha todos os campos.',
+            false
+        );
+
+        return;
+    }
+
+    const result =
+        await petcareCriarConsulta(
+            petId,
+            veterinarioId,
+            data,
+            hora
+        );
+
+    if (result?.sucesso) {
+
+        mostrarFeedback(
+            'Sucesso',
+            'Consulta agendada com sucesso.',
+            true
+        );
+
+        document.getElementById('novaConsultaData').value = '';
+        document.getElementById('novaConsultaHora').selectedIndex = 0;
+
+        await carregarTodasConsultas();
+        await carregarEstatisticas();
+
+    } else {
+
+        mostrarFeedback(
+            'Erro',
+            result?.mensagem || 'Erro ao agendar consulta.',
+            false
+        );
+    }
+}
+</script>
+
+<script>
+document.getElementById('novaConsultaData')?.addEventListener('change', atualizarHorariosDisponiveis);
+document.getElementById('novaConsultaVet')?.addEventListener('change', atualizarHorariosDisponiveis);
+
+async function atualizarHorariosDisponiveis(){
+    if(typeof petcareListarConsultas !== 'function') return;
+
+    const vet = document.getElementById('novaConsultaVet')?.value;
+    const data = document.getElementById('novaConsultaData')?.value;
+    if(!vet || !data) return;
+
+    const consultas = (await petcareListarConsultas())?.dados || [];
+    const ocupados = consultas
+        .filter(c => String(c.veterinarioId ?? c.vetId) === String(vet) && c.data?.includes(data.split('-').reverse().join('/')) && c.status === 'Marcada')
+        .map(c => c.hora);
+
+    const select = document.getElementById('novaConsultaHora');
+    if(!select) return;
+
+    select.innerHTML = '<option value="">Selecione um horário</option>';
+
+    petcareHorariosDisponiveis().forEach(h=>{
+        if(!ocupados.includes(h)){
+            select.innerHTML += `<option value="${h}">${h}</option>`;
+        }
+    });
+}
+</script>
+<script>
+let consultaParaCancelar = null;
+
+function abrirConfirmacaoCancelamento(id){
+    consultaParaCancelar = id;
+    document.getElementById('confirmTitle').textContent = 'Cancelar consulta';
+    document.getElementById('confirmText').textContent = 'Deseja realmente cancelar esta consulta?';
+    document.getElementById('modalConfirm').classList.add('active');
+}
+
+function closeConfirm(confirmado){
+    document.getElementById('modalConfirm').classList.remove('active');
+
+    if(confirmado && consultaParaCancelar){
+        executarCancelamentoConsulta(consultaParaCancelar);
+    }
+
+    consultaParaCancelar = null;
+}
+
+async function executarCancelamentoConsulta(id){
+    const result = await petcareAtualizarStatusConsulta(id,'Cancelada');
+
+    if(!result?.sucesso){
+        mostrarFeedback('Erro', result?.mensagem || 'Erro ao cancelar consulta.', false);
+        return;
+    }
+
+    mostrarFeedback('Sucesso','Consulta cancelada com sucesso!',true);
+    await carregarTodasConsultas();
+}
+</script>
+
+<div id="sucessoAvisoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;width:560px;max-width:90%;padding:30px;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <h2 style="margin-bottom:15px;color:#1a2e44">PetCare Connect</h2>
+    <p style="font-size:20px;color:#0d9488">✓ Aviso enviado com sucesso!</p>
+    <div style="text-align:right;margin-top:25px">
+      <button onclick="fecharModalSucessoAviso()" class="btn btn-primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarModalSucessoAviso(){
+  const m=document.getElementById('sucessoAvisoModal');
+  if(m) m.style.display='flex';
+}
+function fecharModalSucessoAviso(){
+  const m=document.getElementById('sucessoAvisoModal');
+  if(m) m.style.display='none';
+}
+</script>
+
+
+<script>
+// ===== RELATÓRIOS =====
+async function carregarRelatorios(){
+    if(typeof petcareListarRelatorios!=='function') return;
+    const result = await petcareListarRelatorios();
+    const relatorios = result?.dados || [];
+    const lista = document.getElementById('listaRelatorios');
+    const total = document.getElementById('totalRelatorios');
+    if(total) total.textContent = relatorios.length;
+
+    if(!lista) return;
+
+    lista.innerHTML = relatorios.length ? relatorios.map(r => `
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">📄 ${r.petNome || 'Pet'}</div>
+            <span class="tag tag-green">${r.tutorNome || ''}</span>
+        </div>
+        <div class="card-sub">${r.texto || ''}</div>
+        <div class="card-actions">
+            <button class="btn btn-primary btn-sm" onclick="visualizarRelatorio(${r.petId}, '${(r.petNome||'Pet').replace(/'/g,'')}','${(r.texto||'').replace(/'/g,'')}','${(r.tutorNome||'').replace(/'/g,'')}')">👁 Visualizar</button>
+            <button class="btn btn-danger btn-sm" onclick="excluirRelatorio(${r.petId})">🗑️ Excluir</button>
+        </div>
+    </div>`).join('')
+    : '<div class="empty"><p>Nenhum relatório encontrado.</p></div>';
+}
+
+
+function visualizarRelatorio(petId, petNome, texto, tutorNome){
+    const w = window.open('', '_blank');
+    const hoje = new Date().toLocaleDateString('pt-BR') + ', ' +
+                 new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+    w.document.write(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório ${petNome}</title>
+<style>
+body{font-family:Arial,sans-serif;background:#eef5f5;margin:0;padding:20px}
+.relatorio{max-width:820px;margin:auto;background:#fff;padding:28px 46px;color:#1a2e44;position:relative}
+.topo{display:flex;justify-content:space-between;font-size:11px;margin-bottom:20px}
+.cabecalho{display:flex;align-items:center;gap:14px}
+.logo{font-size:42px}
+h1{margin:0;color:#16938c;font-size:42px}
+.sub{color:#6b8c8a}
+hr{border:none;border-top:1px solid #dbe7e7;margin:18px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{border:1px solid #dbe7e7;border-radius:12px;padding:14px}
+.lbl{font-size:11px;font-weight:bold;color:#6b8c8a;text-transform:uppercase;margin-bottom:6px}
+.valor{font-weight:700}
+.titulo{margin-top:18px;color:#16938c;font-weight:700;border-bottom:1px solid #dbe7e7;padding-bottom:6px}
+.textbox{border:1px solid #dbe7e7;border-radius:12px;padding:14px;margin-top:10px}
+.watermark{position:absolute;top:260px;left:50%;transform:translateX(-50%);font-size:250px;opacity:.04}
+.footer{margin-top:30px;padding-top:12px;border-top:1px solid #dbe7e7;text-align:right;font-size:12px}
+</style>
+</head>
+<body>
+<div class="relatorio">
+<div class="watermark">🐾</div>
+<div class="topo"><div>${hoje}</div><div>relatorio-${petNome.toLowerCase()}.pdf</div></div>
+<div class="cabecalho">
+<div class="logo">🐾</div>
+<div>
+<h1>Relatório Pet</h1>
+<div class="sub">PetCare Connect — Relatório clínico do animal</div>
+</div>
+</div>
+<hr>
+<div class="grid">
+<div class="box"><div class="lbl">Tutor(a)</div><div class="valor">${tutorNome}</div></div>
+<div class="box"><div class="lbl">Pet</div><div class="valor">${petNome}</div></div>
+<div class="box"><div class="lbl">Tipo</div><div class="valor">Não informado</div></div>
+<div class="box"><div class="lbl">Idade</div><div class="valor">Não informada</div></div>
+<div class="box"><div class="lbl">Peso</div><div class="valor">Não informado</div></div>
+<div class="box"><div class="lbl">Última atualização</div><div class="valor">${new Date().toLocaleDateString('pt-BR')}</div></div>
+</div>
+<div class="titulo">RELATÓRIO CLÍNICO</div>
+<div class="textbox">${texto}</div>
+<div class="titulo">VACINAS</div>
+<ul><li>Nenhuma vacina registrada.</li></ul>
+<div class="titulo">MEDICAÇÕES</div>
+<ul><li>Nenhuma medicação registrada.</li></ul>
+<div class="titulo">HISTÓRICO</div>
+<ul><li>${new Date().toLocaleDateString('pt-BR')}: ${texto}</li></ul>
+<div class="footer">Documento gerado pelo sistema PetCare Connect</div>
+</div>
+</body>
+</html>`);
+    w.document.close();
+    w.print();
+}
+
+async function excluirRelatorio(petId){
+    const r = await petcareExcluirRelatorio(petId);
+    if(r?.sucesso){
+        mostrarFeedback('Sucesso','Relatório excluído!',true);
+        carregarRelatorios();
+    }
+}
+</script>
+
+</body>
+
+</html>

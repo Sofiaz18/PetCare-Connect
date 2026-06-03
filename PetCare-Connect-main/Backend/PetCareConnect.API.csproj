@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>PetCareConnect.API</AssemblyName>
+    <RootNamespace>PetCareConnect.API</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Dapper para acesso ao SQL Server -->
+    <PackageReference Include="Dapper"                  Version="2.1.35" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1"  />
+
+    <!-- BCrypt para hash de senhas -->
+    <PackageReference Include="BCrypt.Net-Next"          Version="4.0.3"  />
+
+    <!-- JWT para autenticação -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt"               Version="7.1.2"  />
+
+    <!-- Swagger -->
+    <PackageReference Include="Swashbuckle.AspNetCore"   Version="6.5.0"  />
+  </ItemGroup>
+
+</Project>
