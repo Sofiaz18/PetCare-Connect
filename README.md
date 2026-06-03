@@ -1,23 +1,23 @@
-🐾 PetCare Connect
+# 🐾 PetCare Connect
 
 Sistema de gestão veterinária que conecta **tutores**, **veterinários** e **administradores** em uma única plataforma, permitindo o gerenciamento de pets, consultas, vacinas, histórico clínico, avisos e relatórios.
 
 ---
 
-📋 Sobre o Projeto
+## 📋 Sobre o Projeto
 
 O **PetCare Connect** é uma aplicação web full-stack desenvolvida em **ASP.NET Core 8** (back-end) com front-end em **HTML/CSS/JavaScript** servido diretamente pela API. O sistema implementa autenticação via **JWT** e controle de acesso por perfil de usuário.
 
-Perfis de usuário
+### Perfis de usuário
 - **Tutor** — gerencia seus pets, consultas e visualiza vacinas/histórico
 - **Veterinário** — atende consultas, registra vacinas, histórico e relatórios
 - **Admin** — administra usuários e acessa estatísticas do sistema
 
 ---
 
-🛠️ Tecnologias
+## 🛠️ Tecnologias
 
-Back-end
+**Back-end**
 - ASP.NET Core 8 (Web API)
 - Dapper (acesso a dados)
 - Microsoft.Data.SqlClient — **SQL Server 2019+**
@@ -30,7 +30,8 @@ Back-end
 - Páginas: login, cadastro, recuperação de senha, painéis de tutor, veterinário e administração
 
 ---
-📂 Estrutura do Projeto
+
+## 📂 Estrutura do Projeto
 
 ```
 PetCare-Connect-main/
@@ -47,7 +48,7 @@ PetCare-Connect-main/
 
 ---
 
-🗄️ Entidades Principais
+## 🗄️ Entidades Principais
 
 | Entidade   | Descrição                                            |
 |------------|------------------------------------------------------|
@@ -61,13 +62,13 @@ PetCare-Connect-main/
 
 ---
 
-🚀 Como Executar
+## 🚀 Como Executar
 
-Pré-requisitos
+### Pré-requisitos
 - [.NET 8 SDK](https://dotnet.microsoft.com/download)
 - SQL Server 2019 ou superior
 
-1. Configurar o banco de dados
+### 1. Configurar o banco de dados
 Execute os scripts na pasta `Backend/Data/`:
 ```sql
 -- 1. Criar o banco e as tabelas
@@ -77,7 +78,7 @@ CreateDatabase.sql
 Seed.sql
 ```
 
-2. Ajustar a connection string
+### 2. Ajustar a connection string
 Edite o arquivo `Backend/appsettings.json` com o nome do seu servidor SQL:
 ```json
 "ConnectionStrings": {
@@ -85,7 +86,7 @@ Edite o arquivo `Backend/appsettings.json` com o nome do seu servidor SQL:
 }
 ```
 
-3. Rodar a aplicação
+### 3. Rodar a aplicação
 ```bash
 cd Backend
 dotnet restore
@@ -96,14 +97,14 @@ A API ficará disponível em `http://localhost:5000`.
 
 ---
 
-📖 Documentação da API (Swagger)
+## 📖 Documentação da API (Swagger)
 
 Com a aplicação rodando, acesse:
 ```
 http://localhost:5000/swagger
 ```
 
-Principais Endpoints
+### Principais Endpoints
 
 **Autenticação** (`/api/auth`)
 - `POST /login` — autenticação e geração do token JWT
@@ -121,7 +122,7 @@ Principais Endpoints
 
 ---
 
-🔐 Usuários de Teste
+## 🔐 Usuários de Teste
 
 Após rodar o `Seed.sql`:
 
@@ -133,7 +134,7 @@ Após rodar o `Seed.sql`:
 
 ---
 
-🔒 Segurança
+## 🔒 Segurança
 
 - Senhas armazenadas com hash **BCrypt** (workFactor 11)
 - Autenticação **JWT** com expiração configurável (padrão: 8h)
